@@ -1,41 +1,77 @@
 package com.example.resepin2
-
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import com.example.resepin2.databinding.ActivityFavorite2Binding
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.resepin2.DAO.RecipeDatabase
+import com.google.android.material.appbar.MaterialToolbar
 
-class FavoriteActivity2 : AppCompatActivity() {
-
-    private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var binding: ActivityFavorite2Binding
+class FavoriteActivity : AppCompatActivity() {
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var recipeAdapter: RecipeAdapter
+    private lateinit var database: RecipeDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_favorite) // Menghubungkan dengan layout XML
 
-        binding = ActivityFavorite2Binding.inflate(layoutInflater)
-        setContentView(binding.root)
+        // Inisialisasi database
+        database = RecipeDatabase.getDatabase(this)
 
-        setSupportActionBar(binding.toolbar)
+        // Setup tampilan
+        setupViews()
+        // Muat data resep favorit
+//        loadFavoriteRecipes()
+    }
 
-        val navController = findNavController(R.id.nav_host_fragment_content_favorite2)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
+    private fun setupViews() {
+        // Setup toolbar dengan tombol back
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = "Resep Favorit"
 
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .setAnchorView(R.id.fab).show()
+        // Setup RecyclerView untuk menampilkan daftar resep favorit
+        recyclerView = findViewById(R.id.favoriteRecyclerView)
+        recyclerView.layoutManager = GridLayoutManager(this, 2)
+
+        // Menambahkan aksi ketika resep diklik
+//        recipeAdapter = RecipeAdapter(
+//            onRecipeClick = { recipe ->
+//                // Contoh: membuka detail resep
+//                val intent = Intent(this, RecipeDetailActivity::class.java)
+//                intent.putExtra("RECIPE_ID", recipe.id)
+//                startActivity(intent)
+//            },
+//            onFavoriteClick = { recipe ->
+//                // Contoh: aksi ketika tombol favorit di klik
+//                lifecycleScope.launch {
+//                    recipe.isFavorite = !recipe.isFavorite
+//                    database.recipeDao().updateRecipe(recipe)
+//                    loadFavoriteRecipes() // Muat ulang daftar favorit
+//                }
+//            }
+//        )
+        recyclerView.adapter = recipeAdapter
+    }
+
+
+    // Menangani tombol back pada toolbar
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            finish() // Kembali ke halaman sebelumnya
+            return true
         }
+        return super.onOptionsItemSelected(item)
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_favorite2)
-        return navController.navigateUp(appBarConfiguration)
-                || super.onSupportNavigateUp()
-    }
+//    private fun loadFavoriteRecipes() {
+//        lifecycleScope.launch {
+//            database.recipeDao().getFavoriteRecipes().collect { recipes ->
+//                recipeAdapter.submitList(recipes)
+//            }
+//        }
+//    }
 }
+

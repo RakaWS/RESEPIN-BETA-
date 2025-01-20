@@ -1,4 +1,4 @@
-package com.example.resepin2
+package com.example.resepin2.DAO
 
 import android.content.Context
 import androidx.room.Database

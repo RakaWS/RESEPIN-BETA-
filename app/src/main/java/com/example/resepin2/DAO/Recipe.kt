@@ -1,4 +1,4 @@
-package com.example.resepin2
+package com.example.resepin2.DAO
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

@@ -1,41 +1,54 @@
 package com.example.resepin2
 
-import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import com.example.resepin2.databinding.ActivityRecipeAdapter2Binding
+import android.content.Intent
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 
-class RecipeAdapter2 : AppCompatActivity() {
+class RecipeAdapter(
+    private val onRecipeClick: (Food) -> Unit
+) : ListAdapter<Food, RecipeAdapter.RecipeViewHolder>(FoodDiffCallback()) {
 
-    private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var binding: ActivityRecipeAdapter2Binding
+    class RecipeViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val imageView: ImageView = view.findViewById(R.id.imgRecipe)
+        private val nameText: TextView = view.findViewById(R.id.tvRecipeName)
+        private val descriptionText: TextView = view.findViewById(R.id.tvRecipeDescription)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        fun bind(food: Food, onRecipeClick: (Food) -> Unit) {
+            nameText.text = food.name
+            descriptionText.text = food.description
 
-        binding = ActivityRecipeAdapter2Binding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        setSupportActionBar(binding.toolbar)
-
-        val navController = findNavController(R.id.nav_host_fragment_content_recipe_adapter2)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
-
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .setAnchorView(R.id.fab).show()
+            Glide.with(imageView.context)
+                .load(food.imageUrl)
+                .placeholder(R.drawable.ic_placeholder)
+                .into(imageView)
+            itemView.setOnClickListener { onRecipeClick(food) }
         }
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_recipe_adapter2)
-        return navController.navigateUp(appBarConfiguration)
-                || super.onSupportNavigateUp()
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecipeViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_food, parent, false)
+        return RecipeViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: RecipeViewHolder, position: Int) {
+        holder.bind(getItem(position), onRecipeClick)
+    }
+}
+
+class FoodDiffCallback : DiffUtil.ItemCallback<Food>() {
+    override fun areItemsTheSame(oldItem: Food, newItem: Food): Boolean {
+        return oldItem.id == newItem.id
+    }
+
+    override fun areContentsTheSame(oldItem: Food, newItem: Food): Boolean {
+        return oldItem == newItem
     }
 }
